@@ -19,4 +19,5 @@ handlers:
 
 - url: /static
   #login: required
-  static_dir: static/app
+  static_dir: static
+  application_readable: on
