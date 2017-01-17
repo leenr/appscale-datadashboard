@@ -1,0 +1,54 @@
+<div class="table-value" ng-if="!repeated" ng-switch="data_type" style="max-width: 64ch; min-width: 16ch; overflow: hidden; text-overflow: ellipsis;">
+    <span ng-switch-when="boolean" class="boolean" ng-class="{'text-danger': value === false, 'text-success': value === true}">
+        {{ value_full_string }}
+    </span>
+
+    <span ng-switch-when="user" class="user">
+        <b class="text-muted"><i>User:</i></b> {{ value.email }}
+    </span>
+
+    <span ng-switch-when="key" class="key">
+        <b class="text-muted"><i>Key:</i></b>
+        <span ng-repeat="pair in value.pairs_rev" class="pair">
+            <a ui-sref="datastore.kind({kind: pair[0], namespace: value.namespace})"><span class="kind">{{ pair[0] }}</span>(id=<span class="id" style="max-width: 16ch;">{{ pair[1] }}</span>)</a>
+            <b ng-if="!$last"> -> </b>
+        </span>
+    </span>
+
+    <span ng-switch-when="integer">
+        <span ng-switch on="property.meaning">
+            <span ng-switch-when="datetime">
+                {{ value_full_string }}
+            </span>
+            <span ng-switch-default>
+                {{ value_full_string }}
+            </span>
+        </span>
+    </span>
+
+    <span ng-switch-when="undefined" class="text-muted" uib-tooltip="'undefined'">&mdash;</span>
+    <span ng-switch-when="null" class="text-muted"><i>null</i></span>
+
+    <span ng-switch-when="string">
+<!--        <span ng-if="!property.compressed">-->
+            <span ng-if="value_json_pretty" class="json" uib-tooltip="{{ value_json_pretty }}" tooltip-class="json-tooltip" tooltip-trigger="'outsideClick'" title="{{ value_full_string }}" title="Click to see tooltip with prettified JSON">
+                <b class="text-muted"><i>JSON:</i></b> {{ value_full_string }}
+            </span>
+            <span ng-if="!value_json_pretty">
+                <span ng-if="property.meaning == '1blob'">
+                    <i>{blob}</i> <a href="javascript:;">show</a>
+                </span>
+                <span ng-if="property.meaning != '1blob'" uib-tooltip="{{ value_full_string }}" tooltip-enable="value_full_string.length > 64">
+                    {{ value_full_string }}
+                </span>
+            </span>
+<!--        </span>-->
+<!--        <span ng-if="property.compressed">-->
+<!--            <i>{compressed data}</i> <a href="javascript:;">show</a>-->
+<!--        </span>-->
+    </span>
+
+    <span ng-switch-default uib-tooltip="{{ value_full_string }}">
+        {{ value_full_string }}
+    </span>
+</div>

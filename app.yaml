@@ -1,0 +1,22 @@
+application: appscaledatadashboard
+version: dev
+
+runtime: python27
+api_version: 1
+threadsafe: yes
+
+automatic_scaling:
+  min_idle_instances: 1
+  max_idle_instances: 1
+
+builtins:
+- deferred: on
+
+handlers:
+- url: .*
+  script: run.app
+  #login: required
+
+- url: /static
+  #login: required
+  static_dir: static/app

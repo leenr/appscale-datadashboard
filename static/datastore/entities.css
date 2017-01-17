@@ -1,0 +1,91 @@
+.nav, .content {
+    height: 100%;
+    position: relative;
+}
+
+.nav {
+    padding: 0;
+    overflow-y: auto;
+}
+
+
+datastore-entities {
+    width: 100%;
+    height: 100%;
+    display: block;
+    position: relative;
+}
+
+
+.header {
+    margin-bottom: 10px;
+}
+
+.footer {
+    position: absolute;
+    bottom: 0;
+    height: 39px;
+    padding: 5px;
+    box-sizing: content-box;
+}
+
+
+.table-value .boolean {
+    font-weight: bold;
+}
+
+.table-value .key > .pair > a:hover {
+    text-decoration: none;
+    border-bottom: 1px solid;
+    box-sizing: content-box;
+}
+
+.table-value .key > .pair > a > .id {
+    display: inline-block;
+    text-overflow: ellipsis;
+    overflow: hidden;
+    vertical-align: bottom;
+    font-weight: 600;
+}
+.table-value .key > .pair > a > .kind {
+    font-weight: 600;
+}
+
+.table-value .json-tooltip > .tooltip-inner {
+    white-space: pre;
+    text-align: left;
+    max-width: 100%;
+    overflow: auto;
+    max-height: 100%;
+}
+
+.entities-table-wrapper {
+    position: relative;
+}
+.entities-table-second-wrapper {
+    width: 100%;
+    overflow-x: auto;
+}
+.entities-table {
+    position: relative;
+    font-size: 12px;
+    margin-bottom: 0;
+}
+.entities-table > tbody {
+    white-space: nowrap;
+}
+.entities-table-overlay {
+    background-color: rgba(222, 222, 255, 0.6);
+    box-shadow: 0px 0px 15px rgba(222, 222, 255, 1);
+    border-radius: 10px;
+    position: absolute;
+    z-index: 100;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    right: 0;
+}
+
+.pagination {
+    margin: 0;
+}

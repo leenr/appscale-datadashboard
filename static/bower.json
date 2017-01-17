@@ -1,0 +1,28 @@
+{
+  "name": "appscale_run-dashboard",
+  "main": [],
+  "dependencies": {
+    "angular": "~1.5.8",
+    "jquery": "~3.1.1",
+    "bootstrap": "~3.3.7",
+    "angular-route": "1.5.0",
+    "ng-table": "~1.0.0",
+    "angular-moment": "~1.0.0-beta.6",
+    "angular-bootstrap": "~2.2.0",
+    "restangular": "~1.5.2",
+    "system.js": "~0.19.40"
+  },
+  "devDependencies": {},
+  "authors": [
+    "Vladimir Solomatin <i@leenr.ru>"
+  ],
+  "license": "CC-BY-SA-4.0",
+  "ignore": [
+    "**/.*",
+    "bower_components"
+  ],
+  "private": true,
+  "resolutions": {
+    "angular": "~1.5.8"
+  }
+}

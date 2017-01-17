@@ -1,0 +1,19 @@
+<div uib-accordion style="font-size: 12px;">
+    <div uib-accordion-group ng-repeat="namespace in app_datastore.namespaces" class="panel panel-{{ namespace == '' ? 'primary' : 'default' }} list-group" style="overflow: hidden; border: none;" is-open="$first">
+        <uib-accordion-heading>
+            <div ng-style="{'font-size': app_datastore.namespaces.length > 1 ? '16px' : '14px'}">
+                {{ namespace ? ('Namespace: ' + namespace) : 'Default namespace' }}
+            </div>
+        </uib-accordion-heading>
+        <div style="margin: -15px -17px;">
+<!--            <a ui-sref=".new_kind" class="list-group-item list-group-item-success"><i class="glyphicon glyphicon-plus"></i> <b>New kind</b></a>-->
+            <a ng-repeat="kind in app_datastore.kinds(namespace)" ui-sref=".entities.kind({namespace: namespace, kind: kind.name})" ui-sref-opts="{inherit: false, reload: true}" ui-sref-active="active" class="list-group-item">{{ kind.name }}</a>
+        </div>
+    </div>
+</div>
+
+<!--<div class="panel panel-primary list-group" style="overflow: hidden;">
+    <div class="panel-body" style="margin: -15px;">
+        <a ui-sref=".new_namespace" class="list-group-item list-group-item-info"><i class="glyphicon glyphicon-plus"></i> <b>New kind in new namespace</b></a>
+    </div>
+</div>-->

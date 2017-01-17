@@ -1,0 +1,50 @@
+<nav class="nav navbar navbar-default navbar-fixed-top" id="header" role="navigation">
+    <div ng-class="{'container': !$state.current.data.container_fluid, 'container-fluid': $state.current.data.container_fluid}">
+        <div class="navbar-header">
+            <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false" aria-controls="navbar">
+                <span class="sr-only">Toggle navigation</span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+            </button>
+            <a href="/" class="navbar-brand"><img src="/static/images/appscale-logo.png" width="30" height="34" style="margin-top: -6px;"></a>
+            <a href="/" class="navbar-brand">AppScale</a>
+        </div>
+        <div id="navbar" class="collapse navbar-collapse">
+            <ul class="nav navbar-nav">
+                <li ui-sref-active="active"><a ui-sref="datastore">Datastore</a></li>
+            </ul>
+            <ul class="nav navbar-nav navbar-right">
+                <li ng-if="!usersService.current"><a href="/users/login">Login</a></li>
+
+                <li ng-if-start="usersService.current" class="dropdown">
+                    <a href="javascript:;" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">
+                        <span>User: {{ usersService.current.email }}</span>
+                        <span class="caret"></span>
+                    </a>
+                    <ul class="dropdown-menu">
+                        <li><a href="/users/logout"><strong class="text-warning">Logout</strong></a></li>
+                        <li ng-if-start="usersService.current.is_cloud_admin" role="separator" class="divider"></li>
+                        <li ng-if-end><a href="/users/manage">Manage users</a></li>
+                    </ul>
+                </li>
+
+                <li ng-if-end class="dropdown">
+                    <a href="javascript:;" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">
+                        <span ng-if="appsService.selected.id">App: {{ appsService.selected.id }}</span>
+                        <span ng-if="!appsService.selected.id">Select app</span>
+                        <span class="caret"></span>
+                    </a>
+                    <ul class="dropdown-menu">
+                        <li ng-repeat="app in appsService.available track by app.id" ng-class="{'active': appsService.selected.id == app.id}">
+                            <a href="javascript:;" ng-click="appsService.selected = app"><span>{{ app.name }}</span></a>
+                        </li>
+                        <li ng-if="!appsService.available" class="disabled"><a href="javascript:;">No available apps...</a></li>
+                        <li role="separator" class="divider"></li>
+                        <li><a href="/apps/manage">Manage apps</a></li>
+                    </ul>
+                </li>
+            </ul>
+        </div>
+    </div>
+</nav>

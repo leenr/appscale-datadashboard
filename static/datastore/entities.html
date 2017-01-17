@@ -1,0 +1,63 @@
+<script type="text/ng-template" id="about:blank"></script>
+
+<div class="header clearfix">
+    <span class="pull-left">
+        <button class="btn btn-info btn-sm" ng-click="refresh_entities()"><i class="glyphicon glyphicon-refresh"></i> Refresh list</button>
+        <button class="btn btn-default btn-sm disabled"><i class="glyphicon glyphicon-refresh"></i> Filter</button>
+    </span>
+    <span class="pull-right">
+        <button class="btn btn-warning btn-sm"><i class="glyphicon glyphicon-refresh"></i> Import entities from</button>
+    </span>
+</div>
+
+<div class="entities-table-wrapper">
+    <div class="entities-table-overlay" ng-show="entities_table_loading"></div>
+
+    <div class="entities-table-second-wrapper">
+        <table class="entities-table table table-hover" ng-table-dynamic="entities_table with entities_table_columns" template-pagination="about:blank">
+            <thead>
+                <th ng-repeat="column in entities_table_columns">
+                    <span ng-class="{'text-muted': column.field && !properties[column.field].indexed}">{{ column.title }}</span>
+                </th>
+                <th style="width: 100%;"></th>
+            </thead>
+
+            <tbody>
+                <tr ng-repeat="entity in $data track by entity.key.urlsafe" entity="entity">
+                    <td ng-if="true" class="key">
+                        <div class="table-value">
+                            <span class="key">
+                                <span ng-repeat="pair in entity.key.pairs" class="pair">
+                                    <a ng-if="!$last" ui-sref="datastore.kind({kind: pair[0], namespace: entity.key.namespace})"><span class="kind">{{ pair[0] }}</span>(id=<span class="id" style="max-width: 16ch;">{{ pair[1] }}</span>)</a>
+                                    <b ng-if="!$last"> -> </b>
+                                </span>
+                                <span class="pair">
+                                    <a ui-sref="datastore.entity({kind: pair[0], namespace: entity.key.namespace, urlsafe_key: entity.key.urlsafe})">id=<span class="id" style="max-width: 24ch;">{{ entity.key.id }}</span></a>
+                                </span>
+                            </span>
+                        </div>
+                    </td>
+                    <td ng-repeat="column in entities_table_columns track by column.field" ng-if="column.field">
+                        <table-property-value entity="entity" property="column.field"></table-property-value>
+                    </td>
+                    <td ng-if="true"></td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<div class="footer">
+    <div class="ng-cloak ng-table-pager" ng-if="entities_table.data.length">
+        <ul class="pagination">
+            <li ng-repeat="page in entities_table_pages" class="page-item" ng-class="{'disabled': !page.active && !page.current, 'active': page.current}" ng-switch="page.type">
+                <a class="page-link" ng-switch-when="prev" ng-click="entities_table.page(page.number)" href="">&laquo;</a>
+                <a class="page-link" ng-switch-when="first" ng-click="entities_table.page(page.number)" href=""><span ng-bind="page.number"></span></a>
+                <a class="page-link" ng-switch-when="page" ng-click="entities_table.page(page.number)" href=""><span ng-bind="page.number"></span></a>
+                <a class="page-link" ng-switch-when="more" ng-click="entities_table.page(page.number)" href="">&#8230;</a>
+                <a class="page-link" ng-switch-when="last" ng-click="entities_table.page(page.number)" href=""><span ng-bind="page.number"></span></a>
+                <a class="page-link" ng-switch-when="next" ng-click="entities_table.page(page.number)" href="">&raquo;</a>
+            </li>
+        </ul>
+    </div>
+</div>
