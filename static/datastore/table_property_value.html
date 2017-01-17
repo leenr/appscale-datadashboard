@@ -31,14 +31,14 @@
 
     <span ng-switch-when="string">
 <!--        <span ng-if="!property.compressed">-->
-            <span ng-if="value_json_pretty" class="json" uib-tooltip="{{ value_json_pretty }}" tooltip-class="json-tooltip" tooltip-trigger="'outsideClick'" title="{{ value_full_string }}" title="Click to see tooltip with prettified JSON">
+            <span ng-if="value_json_pretty" class="json" uib-tooltip="{{ value_json_pretty }}" tooltip-class="json-tooltip" tooltip-trigger="'outsideClick'" tooltip-append-to-body="true" title="Click to see tooltip with prettified JSON">
                 <b class="text-muted"><i>JSON:</i></b> {{ value_full_string }}
             </span>
             <span ng-if="!value_json_pretty">
                 <span ng-if="property.meaning == '1blob'">
                     <i>{blob}</i> <a href="javascript:;">show</a>
                 </span>
-                <span ng-if="property.meaning != '1blob'" uib-tooltip="{{ value_full_string }}" tooltip-enable="value_full_string.length > 64">
+                <span ng-if="property.meaning != '1blob'" uib-tooltip="{{ value_full_string }}" tooltip-enable="value_full_string.length > 64" tooltip-append-to-body="true">
                     {{ value_full_string }}
                 </span>
             </span>
