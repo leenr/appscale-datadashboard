@@ -32,7 +32,7 @@ class ExtHelper:
         if isinstance(kind, basestring):
             kind_key = cls.key(ndb_metadata.Kind, kind)
         elif isinstance(kind, ndb.Key):
-            kind_key = kind
+            kind_key = cls.key(*kind.flat())
         elif isinstance(kind, ndb_metadata.Kind):
             kind_key = kind.key
 
