@@ -1,0 +1,39 @@
+<div class="modal-header">
+    <h3 class="modal-title" id="modal-title">Filter entities of kind {{ kind_path[1] }}</h3>
+</div>
+
+<div class="modal-body" id="modal-body">
+    <div class="alert alert-warning">
+        <p>Currently, filter by only one key ancestor or property is supported and the only supported property value type is string. It will be changed in the future.</p>
+        <p>Note that you always can only filter by indexed properties - it is a limitation of AppScale Datastore, not a datastore viewer.</p>
+    </div>
+
+    <div ng-if="!property_filters[0].name">
+        <div class="form-group">
+            <div class="input-group">
+                <div class="input-group-addon">Key:</div>
+                <input type="text" ng-model="key_filter.id" placeholder="Entity id" class="form-control">
+            </div>
+        </div>
+        <div class="form-group">
+            <div class="input-group">
+                <div class="input-group-addon">Key ancestor:</div>
+                <input type="text" ng-model="key_filter.ancestors[0][0]" placeholder="Ancestor kind" ng-model="selected" uib-typeahead="kind.name for kind in app_datastore.kinds() | filter: $viewValue" typeahead-focus-first="true" typeahead-show-hint="true" typeahead-min-length="0" class="form-control">
+                <input type="text" ng-model="key_filter.ancestors[0][1]" placeholder="Ancestor entity id" class="form-control">
+            </div>
+        </div>
+    </div>
+
+    <div ng-if="!(key_filter.id || key_filter.ancestors[0][0] || key_filter.ancestor[0][1])" class="form-group">
+        <div class="input-group">
+            <div class="input-group-addon">Property:</div>
+            <input type="text" ng-model="property_filters[0].name" placeholder="Property name" ng-model="selected" uib-typeahead="property.$key for property in properties | toArray: true | filterBy: ['$key']: $viewValue" typeahead-focus-first="true" typeahead-show-hint="true" typeahead-min-length="0" class="form-control">
+            <input type="text" ng-model="property_filters[0].value" placeholder="Property value" class="form-control">
+        </div>
+    </div>
+</div>
+
+<div class="modal-footer">
+    <button class="btn btn-primary" type="button" ng-click="apply()">Set filter</button>
+    <button class="btn btn-warning" type="button" ng-click="$dismiss()">Cancel</button>
+</div>

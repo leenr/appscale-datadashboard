@@ -35,9 +35,9 @@ class Entities(ApiResource):
         if limit:
             limit = int(limit)
 
-        ancestor = request.args.get('ancestor', None)
+        ancestor = request.args.get('ancestor_json', None)
         if ancestor:
-            ancestor = ExtKey(urlsafe=ancestor)
+            ancestor = ndb.Key(app=app, namespace=namespace, **json.loads(ancestor))
 
         start_cursor = request.args.get('cursor', None)
         if start_cursor:
@@ -45,7 +45,14 @@ class Entities(ApiResource):
 
         filters = request.args.get('filters_json', None)
         if filters:
-            filters = json.loads(filters)
+            filters = map(lambda pairs: ndb.FilterNode(*pairs), json.loads(filters))
+
+        key = request.args.get('key_json', None)
+        if key:
+            key = ndb.Key(app=app, namespace=namespace, **json.loads(key))
+            if not filters:
+                filters = []
+            filters.append(ndb.FilterNode('__key__', '=', key))
 
         projection = request.args.get('projection', None)
         if projection:
@@ -61,7 +68,7 @@ class Entities(ApiResource):
         if group_by:
             group_by = group_by.split(',')
 
-        query = ndb.Query(kind=kind, ancestor=ancestor, filters=filters, orders=orders, app=app, namespace=namespace, group_by=group_by, projection=projection)
+        query = ndb.Query(kind=kind, ancestor=ancestor, filters=ndb.ConjunctionNode(*filters) if filters else None, orders=orders, app=app, namespace=namespace, group_by=group_by, projection=projection)
         count = query.count()
 
         if count:

@@ -42,7 +42,15 @@ export class KeyValue {
     get id() { return this.pairs.slice(-1)[0][1]; }
 
     toString(without_first_kind = false) {
-        
+        // TODO
+    }
+
+    toObject() {
+        return {
+            app: this.app,
+            namespace: this.namespace,
+            pairs: this.pairs
+        };
     }
 }
 

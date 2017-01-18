@@ -1,8 +1,9 @@
 import dashboard from 'core/angular.js';
 
-import AppDatastoreFactory from './app_datastore.js'
-import DatastoreEntitiesComponent from './entities.js'
-import TablePropertyValueComponent from './table_property_value.js'
+import AppDatastoreFactory from './app_datastore.js';
+import DatastoreEntitiesComponent from './entities.js';
+import TablePropertyValueComponent from './table_property_value.js';
+import EntitiesFilterDialogComponent from './entities_filter_dialog.js';
 
 let app = dashboard.create_angular_app({
     name: 'datastore',
@@ -145,5 +146,6 @@ app.factory('AppDatastore', AppDatastoreFactory);
 
 app.component('datastoreEntities', DatastoreEntitiesComponent);
 app.component('tablePropertyValue', TablePropertyValueComponent);
+app.component('entitiesFilterDialog', EntitiesFilterDialogComponent);
 
 export default app;

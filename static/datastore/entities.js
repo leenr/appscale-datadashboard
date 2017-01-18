@@ -6,7 +6,7 @@ export default {
         request_arguments: '<requestArguments',
     },
 
-    controller: function($element, $sce, $scope, $state, $stateParams, $q, $window, NgTableParams, ngTableEventsChannel) {
+    controller: function($element, $sce, $scope, $state, $stateParams, $q, $uibModal, $window, NgTableParams, ngTableEventsChannel) {
         function get_page_for_offset(offset, count, old_count) {
             if(angular.isUndefined(old_count) || count < old_count) {
                 return Math.floor(offset / count) + 1;
@@ -62,6 +62,8 @@ export default {
         }
         $($window).resize(calculate_table_count);
         let table_count = calculate_table_count();
+
+        let filter_params = {};
 
         let current_page = 1;
         let offset = $stateParams.offset;
@@ -138,6 +140,7 @@ export default {
                 if(orders.length > 0) {
                     query_params['orders'] = orders;
                 }
+                angular.extend(query_params, filter_params);
 
                 let entities_from_cache = get_entities_from_cache(query_params);
                 if(entities_from_cache !== null) {
@@ -185,5 +188,22 @@ export default {
             current_entities_cache = null;
             $scope.entities_table.reload();
         };
+
+        $scope.filter_dialog = function() {
+            $uibModal.open({
+                component: 'entitiesFilterDialog',
+                size: 'xs',
+                resolve: {
+                    kind_path: function() {return request_arguments},
+                    properties: $scope.properties,
+                    app_datastore: app_datastore,
+                    filter_params: filter_params
+                }
+            }).result.then(function(new_filter_params) {
+                filter_params = new_filter_params;
+                $scope.has_filter_params = !$.isEmptyObject(filter_params);
+                $scope.entities_table.page(1).reload();
+            });
+        }
     },
 };
