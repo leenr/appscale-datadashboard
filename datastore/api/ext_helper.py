@@ -37,7 +37,7 @@ class ExtHelper:
             kind_key = kind.key
 
         properties = yield cls.query_for(ndb_metadata.Property, ancestor=kind_key).fetch_async()
-        ext_properties = map(Property, properties)
+
         raise ndb.Return(Kind(kind_key.id(), properties))
 
     @classmethod

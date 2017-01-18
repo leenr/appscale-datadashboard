@@ -36,7 +36,8 @@ class Kind(ndb_metadata.Kind):
             'properties': self.properties,
         }
 
-class Property(ndb_metadata.Property):
+
+class Property(ndb.model.Property):
     def _to_api(self):
         return {
             'name': self._name,
@@ -81,8 +82,17 @@ class Property(ndb_metadata.Property):
         ])
 
 
+class MetadataProperty(ndb_metadata.Property):
+    def _to_api(self):
+        return {
+            'name': self.property_name,
+            'property_representation': self.property_representation,
+        }
+
+
 class_serializers = {
     ndb_metadata.Namespace: lambda namespace: namespace.namespace_name,
     ndb_metadata.Kind: Kind._to_api,
-    ndb_metadata.Property: Property._to_api,
+    ndb_metadata.Property: MetadataProperty._to_api,
+    ndb.model.Property: Property._to_api,
 }
