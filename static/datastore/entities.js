@@ -28,10 +28,10 @@ export default {
         let dom_header = $element.find('.header');
         let dom_table_wrapper = $element.find('.entities-table-wrapper');
         let dom_footer = $element.find('.footer');
-        function calculate_table_count() {
+        function calculate_table_count(new_view_height) {
             let one_row_height = 34;
 
-            let table_height = $element.parent().height() - dom_table_wrapper.position().top - dom_footer.outerHeight();
+            let table_height = new_view_height - dom_table_wrapper.position().top - dom_footer.outerHeight();
             let table_header_height = one_row_height;
             let table_footer_height = 0;
             let table_body_height = table_height - table_header_height - table_footer_height;
@@ -60,8 +60,9 @@ export default {
 
             return new_count;
         }
-        $($window).resize(calculate_table_count);
-        let table_count = calculate_table_count();
+        let root_datastore_scope = $scope.$parent.$parent;
+        root_datastore_scope.$watch('view_height', calculate_table_count);
+        let table_count = calculate_table_count(root_datastore_scope.view_height);
 
         let filter_params = {};
 

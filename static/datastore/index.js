@@ -34,7 +34,11 @@ let app = dashboard.create_angular_app({
                         $scope.$digest();
                     } catch(e) { }
                 }
-                jq_window.resize(calculate_height);
+                $scope.$on('destroy', function() {
+                    'use strict';
+                    jq_window.off('resize', calculate_height);
+                });
+                jq_window.on('resize', calculate_height);
                 calculate_height();
             },
 
