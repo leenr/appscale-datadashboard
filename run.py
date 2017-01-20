@@ -4,6 +4,7 @@ import warnings
 
 from flask import Flask
 from flask.exthook import ExtDeprecationWarning
+from werkzeug.contrib.fixers import ProxyFix
 
 from core.flask import FlaskApp
 
@@ -12,6 +13,7 @@ warnings.simplefilter('ignore', ExtDeprecationWarning)
 
 
 app = FlaskApp()
+app.wsgi_app = ProxyFix(app.wsgi_app)
 
 app.config.from_pyfile('settings/dist.py')
 if exists('settings/local.py'):
