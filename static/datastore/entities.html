@@ -9,10 +9,13 @@
 </div>
 
 <div class="entities-table-wrapper">
-    <div class="entities-table-overlay" ng-show="entities_table_loading"></div>
+    <div class="entities-table-overlay" ng-show="entities_table_loading && entities_table.data.count > 0"></div>
+    <div class="alert alert-info lead" ng-if="entities_table_loading && (!entities_table.data || entities_table.data.count == 0)">
+        Fetching entities...
+    </div>
 
     <div class="entities-table-second-wrapper">
-        <table class="entities-table table table-hover" ng-table-dynamic="entities_table with entities_table_columns" template-pagination="about:blank">
+        <table ng-show="entities_table.data.count > 0" class="entities-table table table-hover" ng-table-dynamic="entities_table with entities_table_columns" template-pagination="about:blank">
             <thead>
                 <th ng-repeat="column in entities_table_columns">
                     <span ng-class="{'text-primary': entities_table.sorting()[column.field], 'text-muted': column.common || (column.field && !properties[column.field].indexed)}" ng-click="!column.common ? toggle_sort(column) : undefined">{{ column.title }}&nbsp;<small class="glyphicon" ng-class="[{'asc': 'glyphicon-chevron-up', 'desc': 'glyphicon-chevron-down'}[entities_table.sorting()[column.field]]]"></small></span>
@@ -42,6 +45,11 @@
                 </tr>
             </tbody>
         </table>
+
+        <div ng-if="entities_table.data.count == 0 && !entities_table_loading" class="alert alert-warning">
+            No entities<span ng-if="has_filter_params"> matching filters you specified</span>.
+            <span ng-if="entities_table.orderBy().length > 0"><br>Property {{ entities_table.orderBy()[0].substr(1) }} may not be indexed. Please, check this.<br>Clear sorting using the button above.</span>
+        </div>
     </div>
 </div>
 
