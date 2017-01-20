@@ -1,9 +1,10 @@
-.nav, .content {
+.datastore-entities > .nav,
+.datastore-entities > .content {
     height: 100%;
     position: relative;
 }
 
-.nav {
+.datastore-entities > .nav {
     padding: 0;
     overflow-y: auto;
 }

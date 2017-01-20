@@ -2,7 +2,7 @@
     Please, select app.
 </div>
 
-<div ng-show="app_datastore" class="row" ng-style="{height: view_height + 'px'}" style="position: relative;">
+<div ng-show="app_datastore" class="row datastore-entities" ng-style="{height: view_height + 'px'}" style="position: relative;">
     <div class="nav col-lg-2 col-md-3 col-sm-4 col-xs-6" ng-include="'static/datastore/nav.html'"></div>
     <ui-view name="entities" class="content col-lg-10 col-md-9 col-sm-8 col-xs-6"></ui-view>
 </div>
