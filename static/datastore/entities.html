@@ -14,7 +14,7 @@
         <table class="entities-table table table-hover" ng-table-dynamic="entities_table with entities_table_columns" template-pagination="about:blank">
             <thead>
                 <th ng-repeat="column in entities_table_columns">
-                    <span ng-class="{'text-muted': column.field && !properties[column.field].indexed}">{{ column.title }}</span>
+                    <span ng-class="{'text-primary': entities_table.sorting()[column.field], 'text-muted': column.field && !properties[column.field].indexed}" ng-click="toggle_sort(column)">{{ column.title }}&nbsp;<small class="glyphicon" ng-class="[{'asc': 'glyphicon-chevron-up', 'desc': 'glyphicon-chevron-down'}[entities_table.sorting()[column.field]]]"></small></span>
                 </th>
                 <th style="width: 100%;"></th>
             </thead>

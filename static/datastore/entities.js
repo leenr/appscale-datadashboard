@@ -205,6 +205,18 @@ export default {
                 $scope.has_filter_params = !$.isEmptyObject(filter_params);
                 $scope.entities_table.page(1).reload();
             });
-        }
+        };
+
+        $scope.toggle_sort = function(column) {
+            let current_sorting = $scope.entities_table.sorting();
+            if(current_sorting[column.field]) {
+                current_sorting[column.field] = current_sorting[column.field] === 'asc' ? 'desc' : 'asc';
+            } else {
+                current_sorting = {};
+                current_sorting[column.field] = 'asc';
+            }
+            $scope.entities_table.sorting(current_sorting);
+            $scope.entities_table.page(1).reload();
+        };
     },
 };
