@@ -1,2 +1,3 @@
 .*.pyc
 lib
+settings/local.py
