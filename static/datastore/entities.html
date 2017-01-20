@@ -4,6 +4,7 @@
     <span class="pull-left">
         <button class="btn btn-default btn-sm" ng-click="refresh_entities()"><i class="glyphicon glyphicon-refresh"></i> Refresh list</button>
         <button class="btn btn-sm" ng-class="{'btn-default': !has_filter_params, 'btn-info': has_filter_params}" ng-click="filter_dialog()"><i class="glyphicon glyphicon-filter"></i> Filter</button>
+        <button ng-if="entities_table.orderBy().length > 0" class="btn btn-sm btn-info" ng-click="entities_table.sorting({})"><i class="glyphicon glyphicon-sort"></i> Clear sorting</button>
     </span>
 </div>
 
