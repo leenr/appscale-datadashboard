@@ -75,7 +75,8 @@ export default {
 
         let common_columns = [
             {
-                title: 'Entity key',
+                title: 'Key',
+                field: '__key__',
                 common: true,
             },
         ];
