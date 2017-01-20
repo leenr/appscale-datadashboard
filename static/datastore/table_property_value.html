@@ -11,7 +11,7 @@
         <b class="text-muted"><i>Key:</i></b>
         <span ng-repeat="pair in value.pairs_rev" class="pair">
             <a ui-sref="datastore.kind({kind: pair[0], namespace: value.namespace})"><span class="kind">{{ pair[0] }}</span>(id=<span class="id" style="max-width: 16ch;">{{ pair[1] }}</span>)</a>
-            <b ng-if="!$last"> -> </b>
+            <b ng-if="!$last"> <- </b>
         </span>
     </span>
 
