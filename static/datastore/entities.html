@@ -35,7 +35,7 @@
                             </span>
                         </div>
                     </td>
-                    <td ng-repeat="column in entities_table_columns track by column.field" ng-if="column.field">
+                    <td ng-repeat="column in entities_table_columns track by column.field" ng-if="!column.common">
                         <table-property-value entity="entity" property="column.field"></table-property-value>
                     </td>
                     <td ng-if="true"></td>
