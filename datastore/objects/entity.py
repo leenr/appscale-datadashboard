@@ -1,7 +1,7 @@
 from datastore.ext.model import ExtModel, ExtKey
 from datastore.objects.entity_key import serialize_entity_key
-from datastore.objects.entity_property import serialize_property_info
-from datastore.objects.entity_value import serialize_entity_value
+from datastore.objects.entity_property import serialize_property_info, unserialize_property_info_into
+from datastore.objects.entity_value import serialize_entity_value, unserialize_entity_value
 
 
 def serialize_entity(entity):
@@ -21,6 +21,19 @@ def serialize_entity(entity):
         'data': data,
         'properties': properties,
     }
+
+
+def unserialize_entity_to(entity, api_data):
+    data = api_data.get('data')
+    properties = api_data.get('properties')
+
+    for prop_name, property_info in properties.iteritems():
+        api_value = data.get(prop_name)
+        ndb_property = unserialize_property_info_into(entity, prop_name, property_info)
+        ndb_value = unserialize_entity_value(ndb_property, api_value, entity=entity)
+        ndb_property._set_value(entity, ndb_value)
+
+    return entity
 
 
 class_serializers = {

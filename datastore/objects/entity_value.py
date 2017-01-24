@@ -1,9 +1,11 @@
-from base64 import b64encode
+from base64 import b64encode, b64decode
 from datetime import datetime
+from functools import partial
 
 from google.appengine.api import users
 from google.appengine.ext import ndb
 
+from datastore.ext.model import GenericPropertyWithMeaning, PbMeaning
 from datastore.objects.entity_key import serialize_entity_key
 
 
@@ -50,5 +52,34 @@ def serialize_entity_value(base_value, entity=None):
 
     elif isinstance(value, (int, long, float, basestring, type(None), bool)):
         pass
+
+    return value
+
+
+def unserialize_entity_value(ndb_property, value, entity=None):
+    if ndb_property._repeated and isinstance(value, list):
+        value = map(partial(unserialize_entity_value, ndb_property, entity=entity), value)
+    elif ndb_property._compressed:
+        value = ndb.model._CompressedValue(b64decode(value))
+
+    if isinstance(ndb_property, ndb.UserProperty):
+        value = users.User(
+            email=value.get('email'),
+            _user_id=value.get('user_id'),
+            _auth_domain=value.get('auth_domain', None),
+            federated_identity=value.get('federated_identity', None),
+            federated_provider=value.get('federated_provider', None),
+        )
+
+    elif isinstance(ndb_property, ndb.KeyProperty):
+        if 'app' not in value:
+            value['app'] = entity.key.app()
+        if 'namespace' not in value:
+            value['namespace'] = entity.key.namespace()
+        value = ndb.Key(**value)
+
+    elif isinstance(ndb_property, GenericPropertyWithMeaning):
+        if ndb_property._meaning == PbMeaning.GD_WHEN:
+            value = datetime.fromtimestamp(value)
 
     return value

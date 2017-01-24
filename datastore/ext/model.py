@@ -24,7 +24,7 @@ class PbMeaning:
     BLOBKEY = 17
     INDEX_VALUE = 18
     ENTITY_PROTO = 19
-    USER = 20 # not in google.appengine.datastore.entity_pb.Property, but seen in real data
+    USER = 20  # not in google.appengine.datastore.entity_pb.Property, but seen in real data
 
     NAMES = {
         0: 'no_meaning',
@@ -111,7 +111,7 @@ class PropertyDataInfo(object):
             return PropertyDataTypes.USER
         elif pb_value.has_referencevalue():
             return PropertyDataTypes.KEY
-        else: # "A missing value implies null" (from ndb.model.GenericProperty._db_get_value)
+        else:  # "A missing value implies null" (from ndb.model.GenericProperty._db_get_value)
             return PropertyDataTypes.NULL
 
 
@@ -316,3 +316,14 @@ class GenericExtModel(ndb.Expando, ExtModel):
         prop._code_name = next
         self._properties[prop._name] = prop
         return prop
+
+
+class GenericPropertyWithMeaning(ndb.GenericProperty):
+    def __init__(self, name=None, meaning=None, **kwargs):
+        super(GenericPropertyWithMeaning, self).__init__(name, **kwargs)
+        self._meaning = meaning
+
+    def _db_set_value(self, v, p, value):
+        super(GenericPropertyWithMeaning, self)._db_set_value(v, p, value)
+        if self._meaning is not None:
+            v.set_meaning(self._meaning)

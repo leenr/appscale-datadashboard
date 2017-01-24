@@ -101,5 +101,8 @@ class Entities(ApiResource):
             )
         }
 
+    def put(self):
+        return put_entity()
+
 
 ALL_RESOURCES = [Entities]
