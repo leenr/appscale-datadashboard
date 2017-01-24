@@ -8,27 +8,6 @@ class Kind(ndb_metadata.Kind):
     def __init__(self, name, properties=None):
         self.kind = name
         self.properties = properties
-        self._model = None
-
-    def __del__(self):
-        del ndb.Model._kind_map[self.kind]
-
-    @property
-    def model(self):
-        if self._model is None:
-            self._model = self._create_model()
-
-        return self._model
-
-    def _create_model(self):
-        base_class = ndb.Model if self.properties else ndb.Expando
-        model = type(str(self.kind), (base_class,), {})
-
-        if self.properties:
-            for prop in self.properties:
-                model._properties[prop.name] = prop.model_attribute
-
-        return model
 
     def _to_api(self):
         return {

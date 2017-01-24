@@ -10,8 +10,9 @@ class Namespaces(ApiResource):
     # /apps/<app>/namespaces/
     urls = build_chain_urls('app', 'namespace')
 
-    def get(self, app):
-        return [namespace.namespace_name for namespace in ExtHelper.query_for(ndb_metadata.Namespace).fetch()]
+    def get(self, **kwargs):
+        partition_data = ExtHelper.partition_data(**kwargs)
+        return [namespace.namespace_name for namespace in ndb_metadata.Namespace.query(**partition_data).fetch()]
 
 
 class Kinds(ApiResource):
@@ -20,8 +21,9 @@ class Kinds(ApiResource):
     # /apps/<app>/kinds/
     urls += build_chain_urls('app', 'kind')
 
-    def get(self, app, namespace=None):
-        return ExtHelper.get_kinds()
+    def get(self, **kwargs):
+        partition_data = ExtHelper.partition_data(**kwargs)
+        return ExtHelper.get_kinds(**partition_data)
 
 
 class Properties(ApiResource):
@@ -30,8 +32,9 @@ class Properties(ApiResource):
     # /apps/<app>/kinds/<kind>/properties/
     urls += build_chain_urls('app', 'kind', 'property')
 
-    def get(self, app, kind, namespace=None):
-        return ExtHelper.get_kind(kind).get_result().properties
+    def get(self, kind, **kwargs):
+        partition_data = ExtHelper.partition_data(**kwargs)
+        return ExtHelper.get_kind(kind, **partition_data).get_result().properties
 
 
 ALL_RESOURCES = [Namespaces, Kinds, Properties]

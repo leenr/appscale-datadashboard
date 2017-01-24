@@ -4,8 +4,9 @@ from flask import request
 from google.appengine.ext import ndb
 
 from core.dashboard_apps.api import ApiResource
+from datastore.api.ext_helper import ExtHelper
+from datastore.ext.model import ExtKey
 
-from ..ext.model import ExtKey
 from ..ext.query import do_query_iter
 from .url_helpers import build_chain_urls
 
@@ -28,7 +29,9 @@ class Entities(ApiResource):
     # /apps/<app>/kinds/<kind>/entities/
     urls += build_chain_urls('app', 'kind', 'entity')
 
-    def get(self, app, kind, namespace=None):
+    def get(self, kind, **kwargs):
+        partition_data = ExtHelper.partition_data(**kwargs)
+
         offset = request.args.get('offset', 0)
         if offset:
             offset = int(offset)
@@ -39,7 +42,7 @@ class Entities(ApiResource):
 
         ancestor = request.args.get('ancestor_json', None)
         if ancestor:
-            ancestor = ndb.Key(app=app, namespace=namespace, **json.loads(ancestor))
+            ancestor = ExtKey(pairs=json.loads(ancestor), **partition_data)
 
         start_cursor = request.args.get('cursor', None)
         if start_cursor:
@@ -51,7 +54,7 @@ class Entities(ApiResource):
 
         key = request.args.get('key_json', None)
         if key:
-            key = ndb.Key(app=app, namespace=namespace, **json.loads(key))
+            key = ExtKey(pairs=json.loads(key), **partition_data)
             if not filters:
                 filters = []
             filters.append(ndb.FilterNode('__key__', '=', key))
@@ -71,14 +74,13 @@ class Entities(ApiResource):
             group_by = group_by.split(',')
 
         query = ndb.Query(
-            app=app,
-            namespace=namespace,
             kind=kind,
             ancestor=ancestor,
             filters=ndb.ConjunctionNode(*filters) if filters else None,
             orders=orders,
             group_by=group_by,
-            projection=projection
+            projection=projection,
+            **partition_data
         )
         count = query.count()
 
@@ -98,5 +100,6 @@ class Entities(ApiResource):
                 else None
             )
         }
+
 
 ALL_RESOURCES = [Entities]

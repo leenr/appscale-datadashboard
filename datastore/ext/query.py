@@ -1,5 +1,4 @@
 from google.appengine.ext import ndb
-
 from google.appengine.datastore import datastore_query
 
 from .context import ext_context

@@ -7,8 +7,8 @@ from ..objects import api_serialize_obj
 
 class DatastoreApi(ApplicationApi):
     def get_resources(self):
-        from . import dbinfo, entities
-        return dbinfo.ALL_RESOURCES + entities.ALL_RESOURCES
+        from . import dbinfo, entities, entity
+        return dbinfo.ALL_RESOURCES + entities.ALL_RESOURCES + entity.ALL_RESOURCES
 
     def serialize_obj(self, obj):
         res = super(DatastoreApi, self).serialize_obj(obj)

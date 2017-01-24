@@ -1,7 +1,7 @@
 from google.appengine.ext import ndb
 from google.appengine.ext.ndb.google_imports import datastore_rpc
 
-from .model import GenericModel, ExtModel, ExtKey
+from .model import GenericExtModel, ExtModel, ExtKey
 
 
 class ExtModelAdapter(ndb.ModelAdapter):
@@ -21,26 +21,44 @@ class ExtModelAdapter(ndb.ModelAdapter):
         subclasses of ndb.Model (.model.ExtModel) and ndb.Key (.model.ExtKey)
     '''
 
+    def __init__(self, ext_model, default_model=None):
+        self.ext_model = ext_model
+        self.default_model = default_model
+        self.context = None
+
+    def _model_for_key(self, key):
+        model = self.default_model
+
+        if key is not None:
+            model = self.ext_model._lookup_model_for_key(key) or model
+
+        if model is None:
+            raise RuntimeError('Cannot lookup model for {} key'.format(key))
+
+        return model
+
     def pb_to_entity(self, pb):
         ''' Converts protocol buffer data into user-class entity. '''
 
         key = None
-        kind = None
 
         pb_key = pb.key()
         if pb_key.path().element_size():
-            key = ExtKey(reference=pb_key)
-            kind = key.kind()
+            key = ExtKey(reference=pb_key, _adapter=self)
 
-        entity = ExtModel._from_pb(pb, key=key, set_key=False)
-        if self.want_pbs:
-            entity._orig_pb = pb
+        model = self._model_for_key(key)
+        entity = model._from_pb(pb, key=key, set_key=False)
 
         return entity
 
+    def _bind_context(self, context):
+        self.context = context
+
 
 def _make_ext_connection():
-    return ndb.make_connection(default_model=GenericModel)
+    adapter = ExtModelAdapter(ExtModel, GenericExtModel)
+    return datastore_rpc.Connection(adapter=adapter, config=None)
 
 _ext_connection = _make_ext_connection()
 ext_context = ndb.Context(_ext_connection)
+_ext_connection.adapter._bind_context(ext_context)

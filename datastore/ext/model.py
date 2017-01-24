@@ -1,7 +1,8 @@
+from google.appengine.api import datastore_errors
 from google.appengine.ext import ndb
+from google.appengine.ext.ndb.key import _ConstructReference
 
 
-# from google.appengine.datastore.entity_pb.Property
 class PbMeaning:
     NO_MEANING = 0
     ATOM_CATEGORY = 1
@@ -115,13 +116,164 @@ class PropertyDataInfo(object):
 
 
 class ExtKey(ndb.Key):
-    pass
+    # we use ndb.Key private properties and use proxies to make it
+    __slots__ = ['_Key__reference', '_Key__pairs', '_Key__app', '_Key__namespace', '__adapter', '__context']
+
+    def __new__(cls, *_args, **kwargs):
+        adapter = None
+        context = None
+        if '_adapter' in kwargs:
+            adapter = kwargs.pop('_adapter')
+            context = adapter.context
+        elif '_context' in kwargs:
+            context = kwargs.pop('_context')
+
+        # check arguments
+        if _args:
+            if len(_args) == 1 and isinstance(_args[0], dict):
+                if kwargs:
+                    raise TypeError('ExtKey() takes no keyword arguments when a dict is the '
+                                    'the first and only non-keyword argument (for unpickling).')
+                kwargs = _args[0]
+            else:
+                if 'flat' in kwargs:
+                    raise TypeError('ExtKey() with positional arguments cannot accept flat as a keyword argument.')
+                kwargs['flat'] = _args
+
+        # ndb.Key is not designed to be a parent class, but we can do some things to make it work
+        if 'reference' in kwargs or 'serialized' in kwargs or 'urlsafe' in kwargs:
+            # if reference is set, we cannot use super().__new__ because _ConstructReference check first argument
+            # to be ndb.Key class
+            self = super(ndb.Key, cls).__new__(cls)
+            self.__reference = _ConstructReference(ndb.Key, **kwargs)
+            self.__pairs = None  # can be extracted from reference
+            self.__app = None  # can be extracted from reference
+            self.__namespace = None  # can be extracted from reference
+        elif 'pairs' in kwargs or 'flat' in kwargs:
+            # otherwise, _ConstructReference is not called and we can subclass as usual
+            self = super(ExtKey, cls).__new__(cls, pairs=kwargs.get('pairs', None), flat=kwargs.get('flat', None))
+        else:
+            raise TypeError('Key() cannot create a Key instance without arguments.')
+
+        self.__context = context
+        self.__adapter = adapter
+
+        return self
+
+    # Alias private properties of ndb.Key
+
+    @property
+    def __reference(self): return self._Key__reference
+
+    @__reference.setter
+    def __reference(self, value): self._Key__reference = value
+
+    @property
+    def __pairs(self): return self._Key__pairs
+
+    @__pairs.setter
+    def __pairs(self, value): self._Key__pairs = value
+
+    @property
+    def __app(self): return self._Key__app
+
+    @__app.setter
+    def __app(self, value): self._Key__app = value
+
+    @property
+    def __namespace(self): return self._Key__namespace
+
+    @__namespace.setter
+    def __namespace(self, value): self._Key__namespace = value
+
+    def get_async(self, **ctx_options):
+        """Return a Future whose result is the entity for this Key.
+
+        If no such entity exists, a Future is still returned, and the
+        Future's eventual return result be None.
+        """
+        model = None
+        if self.__adapter:
+            model = self.__adapter._model_for_key(self)
+            model._pre_get_hook(self)
+
+        fut = self.__context.get(self, **ctx_options)
+
+        if model:
+            post_hook = model._post_get_hook
+            fut.add_immediate_callback(post_hook, self, fut)
+
+        return fut
+
+    def delete_async(self, **ctx_options):
+        """Schedule deletion of the entity for this Key.
+
+        This returns a Future, whose result becomes available once the
+        deletion is complete.  If no such entity exists, a Future is still
+        returned.  In all cases the Future's result is None (i.e. there is
+        no way to tell whether the entity existed or not).
+        """
+
+        model = None
+        if self.__adapter:
+            model = self.__adapter._model_for_key(self)
+            model._pre_delete_hook(self)
+
+        fut = self.__adapter.context.delete(self, **ctx_options)
+
+        if model:
+            post_hook = model._post_delete_hook
+            fut.add_immediate_callback(post_hook, self, fut)
+
+        return fut
+
+
+class ExtModelKey(ndb.ModelKey):
+    _KEY_CLASS = ExtKey
+
+    # ndb.ModelKey's implementation of this method calls local _validate_key function in ndb.model module
+    # It check for Key class to be IS ndb.Key, but we need to check for ExtKey, so we need to override entire method
+    def _set_value(self, entity, value):
+        """Setter for key attribute."""
+        if value is not None:
+            value = self._validate_key(value, entity=entity)
+            value = entity._validate_key(value)
+        entity._entity_key = value
+
+    def _validate_key(self, value, entity=None):
+        # Don't be like NDB developers, use ._KEY_CLASS constant, so subclasses can override key class :)
+        if not isinstance(value, self._KEY_CLASS):
+            raise datastore_errors.BadValueError('Expected %r instance, got %r' % (self._KEY_CLASS, value))
+        return value
+
+    # Same note as for ._set_value
+    def _validate(self, value):
+        return self._validate_key(value)
 
 
 class ExtModel(ndb.Model):
+    _key = ExtModelKey()
+    key = _key
+
     def __init__(self, *args, **kwargs):
         self._property_data_info = {}
+
+        self._adapter = None
+        self._context = None
+        if '_adapter' in kwargs:
+            self._adapter = kwargs.pop('_adapter')
+            self._context = self._adapter.context
+        elif '_context' in kwargs:
+            self._context = kwargs.pop('_context')
+        elif '_kind' in kwargs:
+            kind = kwargs.pop('_kind')
+            self._get_kind = lambda: kind
+
         super(ExtModel, self).__init__(*args, **kwargs)
+
+    @classmethod
+    def _get_kind(cls):
+        return ''
 
     def _get_property_for(self, p, indexed=True, depth=0):
         prop = super(ExtModel, self)._get_property_for(p, indexed=indexed, depth=depth)
@@ -130,56 +282,38 @@ class ExtModel(ndb.Model):
         prop._data_info = prop_data_info
         return prop
 
-    #@classmethod
-    #def _lookup_model(cls, kind, default_model=None, app=None):
-    #    super(Model, cls)._lookup_model((app, kind))
+    @classmethod
+    def _lookup_model_for_key(cls, key):
+        return None  # TODO: just a stub at this time
 
-    #@classmethod
-    #def _update_kind_map(cls, kind):
-    #    pass
+    def _put_async(self, **ctx_options):
+        """Write this entity to the datastore.
 
-    #@classmethod
-    #def _reset_kind_map(cls):
-    #    """Clear the kind map.  Useful for testing."""
-    #    # Preserve "system" kinds, like __namespace__
-    #    keep = {}
-    #    for (app, name), value in cls._kind_map.iteritems():
-    #        if name.startswith('__') and name.endswith('__'):
-    #            keep[name] = value
-    #        cls._kind_map.clear()
-    #        cls._kind_map.update(keep)
+        This is the asynchronous version of Model._put().
+        """
+        if self._projection:
+            raise datastore_errors.BadRequestError('Cannot put a partial entity')
+        self._prepare_for_put()
+        if self._key is None:
+            kind = self._get_kind()
+            if kind is None:
+                raise ValueError('Cannot determine kind name for this entity to construct key')
+            self._key = self._key._KEY_CLASS(kind, None)
+        self._pre_put_hook()
+        fut = self._context.put(self, **ctx_options)
+        post_hook = self._post_put_hook
+        fut.add_immediate_callback(post_hook, fut)
+        return fut
 
-
-# prevent ModelKey._validate_key function from raising an error
-# "Expected Key kind to be GenericModel; received %s"
-class GenericModelKey(ndb.ModelKey):
-    def _validate_key(self, value, entity=None):
-        try:
-            return ndb.model._validate_key(value, entity=entity)
-        except ndb.KindError:
-            return value
-
-    def _validate(self, value):
-        return self._validate_key(value)
-
-    def _set_value(self, entity, value):
-        """Setter for key attribute."""
-        if value is not None:
-            value = self._validate_key(value, entity=entity)
-            value = entity._validate_key(value)
-        entity._entity_key = value
+    put_async = _put_async
 
 
-class GenericModel(ndb.Expando, ExtModel):
-    _key = GenericModelKey()
-    key = _key
-
+class GenericExtModel(ndb.Expando, ExtModel):
     def _fake_property(self, p, next, indexed=True):
-        """Internal helper to create a fake Property."""
         self._clone_properties()
         if p.name() != next and not p.name().endswith('.' + next):
-            prop = ndb.StructuredProperty(GenericModel, next)
-            prop._store_value(self, ndb.model._BaseValue(GenericModel()))
+            prop = ndb.StructuredProperty(GenericExtModel, next)
+            prop._store_value(self, ndb.model._BaseValue(GenericExtModel()))
         else:
             compressed = p.meaning_uri() == ndb.model._MEANING_URI_COMPRESSED
             prop = ndb.GenericProperty(next,
@@ -189,7 +323,3 @@ class GenericModel(ndb.Expando, ExtModel):
         prop._code_name = next
         self._properties[prop._name] = prop
         return prop
-
-## monkey-patch Model and Key classes from ndb
-#ndb.model.Model = Model
-#ndb.key.Key = Key
