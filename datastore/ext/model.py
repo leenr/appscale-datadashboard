@@ -311,15 +311,8 @@ class ExtModel(ndb.Model):
 class GenericExtModel(ndb.Expando, ExtModel):
     def _fake_property(self, p, next, indexed=True):
         self._clone_properties()
-        if p.name() != next and not p.name().endswith('.' + next):
-            prop = ndb.StructuredProperty(GenericExtModel, next)
-            prop._store_value(self, ndb.model._BaseValue(GenericExtModel()))
-        else:
-            compressed = p.meaning_uri() == ndb.model._MEANING_URI_COMPRESSED
-            prop = ndb.GenericProperty(next,
-                                       repeated=p.multiple(),
-                                       indexed=indexed,
-                                       compressed=compressed)
+        compressed = p.meaning_uri() == ndb.model._MEANING_URI_COMPRESSED
+        prop = ndb.GenericProperty(next, repeated=p.multiple(), indexed=indexed, compressed=compressed)
         prop._code_name = next
         self._properties[prop._name] = prop
         return prop
