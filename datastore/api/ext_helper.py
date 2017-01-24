@@ -35,6 +35,8 @@ class ExtHelper:
             kind_key = cls.key(*kind.flat())
         elif isinstance(kind, ndb_metadata.Kind):
             kind_key = kind.key
+        else:
+            raise ValueError('Invalid kind: {}'.format(kind))
 
         properties = yield cls.query_for(ndb_metadata.Property, ancestor=kind_key).fetch_async()
 

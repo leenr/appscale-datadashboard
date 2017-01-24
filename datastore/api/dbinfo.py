@@ -13,6 +13,7 @@ class Namespaces(ApiResource):
     def get(self, app):
         return [namespace.namespace_name for namespace in ExtHelper.query_for(ndb_metadata.Namespace).fetch()]
 
+
 class Kinds(ApiResource):
     # /apps/<app>/namespaces/<namespace>/kinds/
     urls = build_chain_urls('app', 'namespace', 'kind')
@@ -21,6 +22,7 @@ class Kinds(ApiResource):
 
     def get(self, app, namespace=None):
         return ExtHelper.get_kinds()
+
 
 class Properties(ApiResource):
     # /apps/<app>/namespace/<namespace>/kinds/<kind>/properties/

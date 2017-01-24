@@ -51,6 +51,7 @@ def _make_options(query, q_options):
 
     return query._make_options(q_options)
 
+
 def do_query(query, context=ext_context, **q_options):
     options = _make_options(query, q_options)
 
@@ -59,6 +60,7 @@ def do_query(query, context=ext_context, **q_options):
     else:
         # Optimization using direct batches.
         return context.map_query(query, callback=None, options=options)
+
 
 def do_query_iter(query, context=ext_context, **q_options):
     q_options.setdefault('produce_cursors', True)

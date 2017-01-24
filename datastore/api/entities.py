@@ -15,10 +15,12 @@ ORDER_SIGNS = {
     '-': ndb.model.datastore_query.PropertyOrder.DESCENDING,
 }
 
+
 def parse_order_expr(expr):
     order = ORDER_SIGNS.get(expr[0], ndb.model.datastore_query.PropertyOrder.ASCENDING)
     prop_name = expr.strip(''.join(ORDER_SIGNS.keys()))
     return ndb.model.datastore_query.PropertyOrder(prop_name, order)
+
 
 class Entities(ApiResource):
     # /apps/<app>/namespaces/<namespace>/kinds/<kind>/entities/
@@ -68,7 +70,16 @@ class Entities(ApiResource):
         if group_by:
             group_by = group_by.split(',')
 
-        query = ndb.Query(kind=kind, ancestor=ancestor, filters=ndb.ConjunctionNode(*filters) if filters else None, orders=orders, app=app, namespace=namespace, group_by=group_by, projection=projection)
+        query = ndb.Query(
+            app=app,
+            namespace=namespace,
+            kind=kind,
+            ancestor=ancestor,
+            filters=ndb.ConjunctionNode(*filters) if filters else None,
+            orders=orders,
+            group_by=group_by,
+            projection=projection
+        )
         count = query.count()
 
         if count:
@@ -81,7 +92,11 @@ class Entities(ApiResource):
         return {
             'count': count,
             'entities': entities,
-            'next_cursor': entities_iter.cursor_after().urlsafe() if entities_iter and entities_iter.probably_has_next() else None,
+            'next_cursor': (
+                entities_iter.cursor_after().urlsafe()
+                if entities_iter and entities_iter.probably_has_next()
+                else None
+            )
         }
 
 ALL_RESOURCES = [Entities]
