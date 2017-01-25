@@ -44,7 +44,6 @@ def serialize_entity_value(base_value, entity=None):
             'auth_domain': value.auth_domain(),
             'federated_identity': value.federated_identity(),
             'federated_provider': value.federated_provider(),
-            'nickname': value.nickname(),
         }
 
     elif isinstance(value, datetime):
@@ -64,8 +63,8 @@ def unserialize_entity_value(ndb_property, value, entity=None):
 
     if isinstance(ndb_property, ndb.UserProperty):
         value = users.User(
-            email=value.get('email'),
             _user_id=value.get('user_id'),
+            email=value.get('email'),
             _auth_domain=value.get('auth_domain', None),
             federated_identity=value.get('federated_identity', None),
             federated_provider=value.get('federated_provider', None),
